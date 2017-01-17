@@ -1,19 +1,4 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.sbjs=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-"use strict";
-
-var init = _dereq_('./init');
-
-var sbjs = {
-  init: function(prefs) {
-    this.get = init(prefs);
-    if (prefs && prefs.callback && typeof prefs.callback === 'function') {
-      prefs.callback(this.get);
-    }
-  }
-};
-
-module.exports = sbjs;
-},{"./init":6}],2:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.sbjs = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 "use strict";
 
 var terms = _dereq_('./terms'),
@@ -51,7 +36,7 @@ var data = {
     extra: {
       fire_date:      'fd',
       entrance_point: 'ep',
-      referer:        'rf'
+      referrer:        'rf'
     },
 
     session: {
@@ -86,7 +71,7 @@ var data = {
       return (
         data.aliases.extra.fire_date      + '=' + utils.setDate(new Date, timezone_offset) + data.delimiter +
         data.aliases.extra.entrance_point + '=' + document.location.href                   + data.delimiter +
-        data.aliases.extra.referer        + '=' + (document.referrer || terms.none)
+        data.aliases.extra.referrer        + '=' + (document.referrer || terms.none)
       );
     },
 
@@ -115,7 +100,7 @@ var data = {
 };
 
 module.exports = data;
-},{"./helpers/utils":5,"./terms":9}],3:[function(_dereq_,module,exports){
+},{"./helpers/utils":4,"./terms":9}],2:[function(_dereq_,module,exports){
 "use strict";
 
 var delimiter = _dereq_('../data').delimiter;
@@ -222,7 +207,7 @@ module.exports = {
 
 };
 
-},{"../data":2}],4:[function(_dereq_,module,exports){
+},{"../data":1}],3:[function(_dereq_,module,exports){
 "use strict";
 
 module.exports = {
@@ -280,7 +265,7 @@ module.exports = {
   }
 
 };
-},{}],5:[function(_dereq_,module,exports){
+},{}],4:[function(_dereq_,module,exports){
 "use strict";
 
 module.exports = {
@@ -318,7 +303,7 @@ module.exports = {
 
 };
 
-},{}],6:[function(_dereq_,module,exports){
+},{}],5:[function(_dereq_,module,exports){
 "use strict";
 
 var data        = _dereq_('./data'),
@@ -346,31 +331,75 @@ module.exports = function(prefs) {
       __sbjs_content,
       __sbjs_term;
 
-  function mainData() {
+  // function mainData() {
+  //   var sbjs_data;
+  //   if (
+  //       typeof get_param.utm_source        !== 'undefined' ||
+  //       typeof get_param.utm_medium        !== 'undefined' ||
+  //       typeof get_param.utm_campaign      !== 'undefined' ||
+  //       typeof get_param.utm_content       !== 'undefined' ||
+  //       typeof get_param.utm_term          !== 'undefined' ||
+  //       typeof get_param.gclid             !== 'undefined' ||
+  //       typeof get_param.yclid             !== 'undefined' ||
+  //       typeof get_param[p.campaign_param] !== 'undefined'
+  //     ) {
+  //     setFirstAndCurrentExtraData();
+  //     sbjs_data = getData(terms.traffic.utm);
+  //   } else if (checkReferer(terms.traffic.organic)) {
+  //     setFirstAndCurrentExtraData();
+  //     sbjs_data = getData(terms.traffic.organic);
+  //   } else if (!cookies.get(data.containers.session) && checkReferer(terms.traffic.referral)) {
+  //     setFirstAndCurrentExtraData();
+  //     sbjs_data = getData(terms.traffic.referral);
+  //   } else if (!cookies.get(data.containers.first) && !cookies.get(data.containers.current)) {
+  //     setFirstAndCurrentExtraData();
+  //     sbjs_data = getData(terms.traffic.typein);
+  //   } else {
+  //     return cookies.get(data.containers.current);
+  //   }
+  //
+  //   return sbjs_data;
+  // }
+
+  /**
+   * Alternative attribution behaviour:
+   *
+   * - Session fixates last known source
+   * - Typein can override last known source (outside of session)
+   *
+   * @returns {*}
+   */
+  function mainAttributionData() {
     var sbjs_data;
+    var in_session = !!cookies.get(data.containers.session);
+
+    // Session fixates last known source no matter what
+    // also checks if data did not disappear from browser.
+    if (in_session && cookies.get(data.containers.first) && cookies.get(data.containers.current)) {
+      return cookies.get(data.containers.current);
+    }
+
     if (
-        typeof get_param.utm_source        !== 'undefined' ||
-        typeof get_param.utm_medium        !== 'undefined' ||
-        typeof get_param.utm_campaign      !== 'undefined' ||
-        typeof get_param.utm_content       !== 'undefined' ||
-        typeof get_param.utm_term          !== 'undefined' ||
-        typeof get_param.gclid             !== 'undefined' ||
-        typeof get_param.yclid             !== 'undefined' ||
-        typeof get_param[p.campaign_param] !== 'undefined'
-      ) {
+      typeof get_param.utm_source        !== 'undefined' ||
+      typeof get_param.utm_medium        !== 'undefined' ||
+      typeof get_param.utm_campaign      !== 'undefined' ||
+      typeof get_param.utm_content       !== 'undefined' ||
+      typeof get_param.utm_term          !== 'undefined' ||
+      typeof get_param.gclid             !== 'undefined' ||
+      typeof get_param.yclid             !== 'undefined' ||
+      typeof get_param[p.campaign_param] !== 'undefined'
+    ) {
       setFirstAndCurrentExtraData();
       sbjs_data = getData(terms.traffic.utm);
     } else if (checkReferer(terms.traffic.organic)) {
       setFirstAndCurrentExtraData();
       sbjs_data = getData(terms.traffic.organic);
-    } else if (!cookies.get(data.containers.session) && checkReferer(terms.traffic.referral)) {
+    } else if (checkReferer(terms.traffic.referral)) {
       setFirstAndCurrentExtraData();
       sbjs_data = getData(terms.traffic.referral);
-    } else if (!cookies.get(data.containers.first) && !cookies.get(data.containers.current)) {
+    } else {
       setFirstAndCurrentExtraData();
       sbjs_data = getData(terms.traffic.typein);
-    } else {
-      return cookies.get(data.containers.current);
     }
 
     return sbjs_data;
@@ -389,7 +418,7 @@ module.exports = function(prefs) {
         } else if (typeof get_param.gclid !== 'undefined') {
           __sbjs_source = 'google';
         } else if (typeof get_param.yclid !== 'undefined') {
-          __sbjs_source = 'yandex';  
+          __sbjs_source = 'yandex';
         } else {
           __sbjs_source = terms.none;
         }
@@ -399,7 +428,7 @@ module.exports = function(prefs) {
         } else if (typeof get_param.gclid !== 'undefined') {
           __sbjs_medium = 'cpc';
         } else if (typeof get_param.yclid !== 'undefined') {
-          __sbjs_medium = 'cpc';  
+          __sbjs_medium = 'cpc';
         } else {
           __sbjs_medium = terms.none;
         }
@@ -411,7 +440,7 @@ module.exports = function(prefs) {
         } else if (typeof get_param.gclid !== 'undefined') {
           __sbjs_campaign = 'google_cpc';
         } else if (typeof get_param.yclid !== 'undefined') {
-          __sbjs_campaign = 'yandex_cpc';  
+          __sbjs_campaign = 'yandex_cpc';
         } else {
           __sbjs_campaign = terms.none;
         }
@@ -423,7 +452,7 @@ module.exports = function(prefs) {
       case terms.traffic.organic:
         __sbjs_type     = terms.traffic.organic;
         __sbjs_source   = __sbjs_source || uri.getHost(document.referrer);
-        __sbjs_medium   = terms.referer.organic;
+        __sbjs_medium   = terms.referrer.organic;
         __sbjs_campaign = terms.none;
         __sbjs_content  = terms.none;
         __sbjs_term     = terms.none;
@@ -432,7 +461,7 @@ module.exports = function(prefs) {
       case terms.traffic.referral:
         __sbjs_type     = terms.traffic.referral;
         __sbjs_source   = __sbjs_source || uri.getHost(document.referrer);
-        __sbjs_medium   = __sbjs_medium || terms.referer.referral;
+        __sbjs_medium   = __sbjs_medium || terms.referrer.referral;
         __sbjs_campaign = terms.none;
         __sbjs_content  = uri.parse(document.referrer).path;
         __sbjs_term     = terms.none;
@@ -469,10 +498,10 @@ module.exports = function(prefs) {
   }
 
   function getUtmTerm() {
-    var referer = document.referrer;
+    var referrer = document.referrer;
     if (get_param.utm_term) {
       return get_param.utm_term;
-    } else if (referer && uri.parse(referer).host && uri.parse(referer).host.match(/^(?:.*\.)?yandex\..{2,9}$/i)) {
+    } else if (referrer && uri.parse(referrer).host && uri.parse(referrer).host.match(/^(?:.*\.)?yandex\..{2,9}$/i)) {
       try {
         return uri.getParam(uri.parse(document.referrer).query).text;
       } catch (err) {
@@ -484,31 +513,31 @@ module.exports = function(prefs) {
   }
 
   function checkReferer(type) {
-    var referer = document.referrer;
+    var referrer = document.referrer;
     switch(type) {
       case terms.traffic.organic:
-        return (!!referer && checkRefererHost(referer) && isOrganic(referer));
+        return (!!referrer && checkRefererHost(referrer) && isOrganic(referrer));
       case terms.traffic.referral:
-        return (!!referer && checkRefererHost(referer) && isReferral(referer));
+        return (!!referrer && checkRefererHost(referrer) && isReferral(referrer));
       default:
         return false;
     }
   }
 
-  function checkRefererHost(referer) {
+  function checkRefererHost(referrer) {
     if (p.domain) {
       if (!isolate) {
         var host_regex = new RegExp('^(?:.*\\.)?' + utils.escapeRegexp(domain) + '$', 'i');
-        return !(uri.getHost(referer).match(host_regex));
+        return !(uri.getHost(referrer).match(host_regex));
       } else {
-        return (uri.getHost(referer) !== uri.getHost(domain));
+        return (uri.getHost(referrer) !== uri.getHost(domain));
       }
     } else {
-      return (uri.getHost(referer) !== uri.getHost(document.location.href));
+      return (uri.getHost(referrer) !== uri.getHost(document.location.href));
     }
   }
 
-  function isOrganic(referer) {
+  function isOrganic(referrer) {
 
     var y_host  = 'yandex',
         y_param = 'text',
@@ -519,20 +548,20 @@ module.exports = function(prefs) {
         g_host_regex  = new RegExp('^(?:www\\.)?' + utils.escapeRegexp(g_host)  + '\\..{2,9}$');
 
     if (
-        !!uri.parse(referer).query &&
-        !!uri.parse(referer).host.match(y_host_regex) &&
-        !!uri.parse(referer).query.match(y_param_regex)
+        !!uri.parse(referrer).query &&
+        !!uri.parse(referrer).host.match(y_host_regex) &&
+        !!uri.parse(referrer).query.match(y_param_regex)
       ) {
       __sbjs_source = y_host;
       return true;
-    } else if (!!uri.parse(referer).host.match(g_host_regex)) {
+    } else if (!!uri.parse(referrer).host.match(g_host_regex)) {
       __sbjs_source = g_host;
       return true;
-    } else if (!!uri.parse(referer).query) {
+    } else if (!!uri.parse(referrer).query) {
       for (var i = 0; i < p.organics.length; i++) {
         if (
-            uri.parse(referer).host.match(new RegExp('^(?:.*\\.)?' + utils.escapeRegexp(p.organics[i].host)  + '$', 'i')) &&
-            uri.parse(referer).query.match(new RegExp('.*'         + utils.escapeRegexp(p.organics[i].param) + '=.*', 'i'))
+            uri.parse(referrer).host.match(new RegExp('^(?:.*\\.)?' + utils.escapeRegexp(p.organics[i].host)  + '$', 'i')) &&
+            uri.parse(referrer).query.match(new RegExp('.*'         + utils.escapeRegexp(p.organics[i].param) + '=.*', 'i'))
           ) {
           __sbjs_source = p.organics[i].display || p.organics[i].host;
           return true;
@@ -546,21 +575,21 @@ module.exports = function(prefs) {
     }
   }
 
-  function isReferral(referer) {
+  function isReferral(referrer) {
     if (p.referrals.length > 0) {
       for (var i = 0; i < p.referrals.length; i++) {
-        if (uri.parse(referer).host.match(new RegExp('^(?:.*\\.)?' + utils.escapeRegexp(p.referrals[i].host) + '$', 'i'))) {
+        if (uri.parse(referrer).host.match(new RegExp('^(?:.*\\.)?' + utils.escapeRegexp(p.referrals[i].host) + '$', 'i'))) {
           __sbjs_source = p.referrals[i].display  || p.referrals[i].host;
-          __sbjs_medium = p.referrals[i].medium   || terms.referer.referral;
+          __sbjs_medium = p.referrals[i].medium   || terms.referrer.referral;
           return true;
         }
         if (i + 1 === p.referrals.length) {
-          __sbjs_source = uri.getHost(referer);
+          __sbjs_source = uri.getHost(referrer);
           return true;
         }
       }
     } else {
-      __sbjs_source = uri.getHost(referer);
+      __sbjs_source = uri.getHost(referrer);
       return true;
     }
   }
@@ -575,7 +604,8 @@ module.exports = function(prefs) {
   (function setData() {
 
     // Main data
-    cookies.set(data.containers.current, mainData(), lifetime, domain, isolate);
+    // cookies.set(data.containers.current, mainData(), lifetime, domain, isolate);
+    cookies.set(data.containers.current, mainAttributionData(), lifetime, domain, isolate);
     if (!cookies.get(data.containers.first)) {
       cookies.set(data.containers.first, cookies.get(data.containers.current), lifetime, domain, isolate);
     }
@@ -612,7 +642,8 @@ module.exports = function(prefs) {
   return cookies.parse(data.containers);
 
 };
-},{"./data":2,"./helpers/cookies":3,"./helpers/uri":4,"./helpers/utils":5,"./migrations":7,"./params":8,"./terms":9}],7:[function(_dereq_,module,exports){
+
+},{"./data":1,"./helpers/cookies":2,"./helpers/uri":3,"./helpers/utils":4,"./migrations":6,"./params":7,"./terms":9}],6:[function(_dereq_,module,exports){
 "use strict";
 
 var data    = _dereq_('./data'),
@@ -701,7 +732,7 @@ module.exports = {
   ]
 
 };
-},{"./data":2,"./helpers/cookies":3}],8:[function(_dereq_,module,exports){
+},{"./data":1,"./helpers/cookies":2}],7:[function(_dereq_,module,exports){
 "use strict";
 
 var terms = _dereq_('./terms'),
@@ -818,7 +849,22 @@ module.exports = {
   }
 
 };
-},{"./helpers/uri":4,"./terms":9}],9:[function(_dereq_,module,exports){
+},{"./helpers/uri":3,"./terms":9}],8:[function(_dereq_,module,exports){
+"use strict";
+
+var init = _dereq_('./init');
+
+var sbjs = {
+  init: function(prefs) {
+    this.get = init(prefs);
+    if (prefs && prefs.callback && typeof prefs.callback === 'function') {
+      prefs.callback(this.get);
+    }
+  }
+};
+
+module.exports = sbjs;
+},{"./init":5}],9:[function(_dereq_,module,exports){
 "use strict";
 
 module.exports = {
@@ -830,7 +876,7 @@ module.exports = {
     typein:     'typein'
   },
 
-  referer: {
+  referrer: {
     referral:   'referral',
     organic:    'organic',
     social:     'social'
@@ -841,5 +887,5 @@ module.exports = {
 
 };
 
-},{}]},{},[1])(1)
+},{}]},{},[8])(8)
 });
