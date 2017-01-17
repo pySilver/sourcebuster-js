@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/alexfedoseev/sourcebuster-js/issues"
   },
-  "main": "./dist/sourcebuster.min.js",
+  "main": "./dist/sourcebuster.js",
   "ignore": [
     ".*",
     "**/.*",
