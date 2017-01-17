@@ -25,35 +25,35 @@ module.exports = function(prefs) {
       __sbjs_content,
       __sbjs_term;
 
-  function mainData() {
-    var sbjs_data;
-    if (
-        typeof get_param.utm_source        !== 'undefined' ||
-        typeof get_param.utm_medium        !== 'undefined' ||
-        typeof get_param.utm_campaign      !== 'undefined' ||
-        typeof get_param.utm_content       !== 'undefined' ||
-        typeof get_param.utm_term          !== 'undefined' ||
-        typeof get_param.gclid             !== 'undefined' ||
-        typeof get_param.yclid             !== 'undefined' ||
-        typeof get_param[p.campaign_param] !== 'undefined'
-      ) {
-      setFirstAndCurrentExtraData();
-      sbjs_data = getData(terms.traffic.utm);
-    } else if (checkReferer(terms.traffic.organic)) {
-      setFirstAndCurrentExtraData();
-      sbjs_data = getData(terms.traffic.organic);
-    } else if (!cookies.get(data.containers.session) && checkReferer(terms.traffic.referral)) {
-      setFirstAndCurrentExtraData();
-      sbjs_data = getData(terms.traffic.referral);
-    } else if (!cookies.get(data.containers.first) && !cookies.get(data.containers.current)) {
-      setFirstAndCurrentExtraData();
-      sbjs_data = getData(terms.traffic.typein);
-    } else {
-      return cookies.get(data.containers.current);
-    }
-
-    return sbjs_data;
-  }
+  // function mainData() {
+  //   var sbjs_data;
+  //   if (
+  //       typeof get_param.utm_source        !== 'undefined' ||
+  //       typeof get_param.utm_medium        !== 'undefined' ||
+  //       typeof get_param.utm_campaign      !== 'undefined' ||
+  //       typeof get_param.utm_content       !== 'undefined' ||
+  //       typeof get_param.utm_term          !== 'undefined' ||
+  //       typeof get_param.gclid             !== 'undefined' ||
+  //       typeof get_param.yclid             !== 'undefined' ||
+  //       typeof get_param[p.campaign_param] !== 'undefined'
+  //     ) {
+  //     setFirstAndCurrentExtraData();
+  //     sbjs_data = getData(terms.traffic.utm);
+  //   } else if (checkReferer(terms.traffic.organic)) {
+  //     setFirstAndCurrentExtraData();
+  //     sbjs_data = getData(terms.traffic.organic);
+  //   } else if (!cookies.get(data.containers.session) && checkReferer(terms.traffic.referral)) {
+  //     setFirstAndCurrentExtraData();
+  //     sbjs_data = getData(terms.traffic.referral);
+  //   } else if (!cookies.get(data.containers.first) && !cookies.get(data.containers.current)) {
+  //     setFirstAndCurrentExtraData();
+  //     sbjs_data = getData(terms.traffic.typein);
+  //   } else {
+  //     return cookies.get(data.containers.current);
+  //   }
+  //
+  //   return sbjs_data;
+  // }
 
   /**
    * Alternative attribution behaviour:
