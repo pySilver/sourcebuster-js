@@ -55,6 +55,50 @@ module.exports = function(prefs) {
     return sbjs_data;
   }
 
+  /**
+   * Alternative attribution behaviour:
+   *
+   * - Session fixates last known source
+   * - Typein can override last known source (outside of session)
+   *
+   * @returns {*}
+   */
+  function mainAttributionData() {
+    var sbjs_data;
+    var in_session = !!cookies.get(data.containers.session);
+
+    // Session fixates last known source no matter what
+    // also checks if data did not disappear from browser.
+    if (in_session && cookies.get(data.containers.first) && cookies.get(data.containers.current)) {
+      return cookies.get(data.containers.current);
+    }
+
+    if (
+      typeof get_param.utm_source        !== 'undefined' ||
+      typeof get_param.utm_medium        !== 'undefined' ||
+      typeof get_param.utm_campaign      !== 'undefined' ||
+      typeof get_param.utm_content       !== 'undefined' ||
+      typeof get_param.utm_term          !== 'undefined' ||
+      typeof get_param.gclid             !== 'undefined' ||
+      typeof get_param.yclid             !== 'undefined' ||
+      typeof get_param[p.campaign_param] !== 'undefined'
+    ) {
+      setFirstAndCurrentExtraData();
+      sbjs_data = getData(terms.traffic.utm);
+    } else if (checkReferer(terms.traffic.organic)) {
+      setFirstAndCurrentExtraData();
+      sbjs_data = getData(terms.traffic.organic);
+    } else if (checkReferer(terms.traffic.referral)) {
+      setFirstAndCurrentExtraData();
+      sbjs_data = getData(terms.traffic.referral);
+    } else {
+      setFirstAndCurrentExtraData();
+      sbjs_data = getData(terms.traffic.typein);
+    }
+
+    return sbjs_data;
+  }
+
   function getData(type) {
 
     switch (type) {
@@ -68,7 +112,7 @@ module.exports = function(prefs) {
         } else if (typeof get_param.gclid !== 'undefined') {
           __sbjs_source = 'google';
         } else if (typeof get_param.yclid !== 'undefined') {
-          __sbjs_source = 'yandex';  
+          __sbjs_source = 'yandex';
         } else {
           __sbjs_source = terms.none;
         }
@@ -78,7 +122,7 @@ module.exports = function(prefs) {
         } else if (typeof get_param.gclid !== 'undefined') {
           __sbjs_medium = 'cpc';
         } else if (typeof get_param.yclid !== 'undefined') {
-          __sbjs_medium = 'cpc';  
+          __sbjs_medium = 'cpc';
         } else {
           __sbjs_medium = terms.none;
         }
@@ -90,7 +134,7 @@ module.exports = function(prefs) {
         } else if (typeof get_param.gclid !== 'undefined') {
           __sbjs_campaign = 'google_cpc';
         } else if (typeof get_param.yclid !== 'undefined') {
-          __sbjs_campaign = 'yandex_cpc';  
+          __sbjs_campaign = 'yandex_cpc';
         } else {
           __sbjs_campaign = terms.none;
         }
@@ -254,7 +298,8 @@ module.exports = function(prefs) {
   (function setData() {
 
     // Main data
-    cookies.set(data.containers.current, mainData(), lifetime, domain, isolate);
+    // cookies.set(data.containers.current, mainData(), lifetime, domain, isolate);
+    cookies.set(data.containers.current, mainAttributionData(), lifetime, domain, isolate);
     if (!cookies.get(data.containers.first)) {
       cookies.set(data.containers.first, cookies.get(data.containers.current), lifetime, domain, isolate);
     }
