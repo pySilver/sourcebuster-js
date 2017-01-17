@@ -35,7 +35,7 @@ var data = {
     extra: {
       fire_date:      'fd',
       entrance_point: 'ep',
-      referer:        'rf'
+      referrer:        'rf'
     },
 
     session: {
@@ -70,7 +70,7 @@ var data = {
       return (
         data.aliases.extra.fire_date      + '=' + utils.setDate(new Date, timezone_offset) + data.delimiter +
         data.aliases.extra.entrance_point + '=' + document.location.href                   + data.delimiter +
-        data.aliases.extra.referer        + '=' + (document.referrer || terms.none)
+        data.aliases.extra.referrer        + '=' + (document.referrer || terms.none)
       );
     },
 

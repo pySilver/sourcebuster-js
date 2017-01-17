@@ -59,11 +59,11 @@ Features:
 Features:
 
   - add `sbjs_current_add` cookie, which holds same data as `sbjs_first_add` cookie, but for the visit when current source was written
-  - add info about first referer (see changes below)
+  - add info about first referrer (see changes below)
 
 Changes:
 
-  - move current `referer` data from stand-alone `sbjs_referer` cookie to `sbjs_current_add` cookie (and also to `sbjs_first_add` cookie, now you can get first and current referers via `get_sbjs.first_add.rf` & `get_sbjs.current_add.rf` getters)
+  - move current `referrer` data from stand-alone `sbjs_referer` cookie to `sbjs_current_add` cookie (and also to `sbjs_first_add` cookie, now you can get first and current referers via `get_sbjs.first_add.rf` & `get_sbjs.current_add.rf` getters)
 
 ## 0.0.6
 

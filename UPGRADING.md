@@ -78,7 +78,7 @@ sbjs.init({
   // This is an array of objects
   referrals: [
     {
-      host: 't.co',            // This is host from Twitter's `http referer`
+      host: 't.co',            // This is host from Twitter's `http referrer`
       medium: 'social',        // This is custom `utm_medium`, you can drop it and it'll be `referral`
       display: 'twitter.com'   // And this is how you'll see it in the result data
     },

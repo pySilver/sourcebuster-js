@@ -9,7 +9,7 @@ module.exports = {
     typein:     'typein'
   },
 
-  referer: {
+  referrer: {
     referral:   'referral',
     organic:    'organic',
     social:     'social'

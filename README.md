@@ -111,7 +111,7 @@ sbjs.init({
   // Set custom referral sources
   referrals: [
     {
-      host: 't.co',          // This is host from Twitter's `http referer`
+      host: 't.co',          // This is host from Twitter's `http referrer`
       medium: 'social',      // This is custom `utm_medium`, you can drop it and it'll be `referral`
       display: 'twitter.com' // And this is how you'll see it in the result data
     },
@@ -264,7 +264,7 @@ domain: {
 ```javascript
 referrals: [
   {
-    host: 't.co',            // This is host from Twitter's `http referer`
+    host: 't.co',            // This is host from Twitter's `http referrer`
     medium: 'social',        // This is custom `utm_medium`, you can drop it and it'll be `referral`
     display: 'twitter.com'   // And this is how you'll see it in the result data
   },
@@ -277,9 +277,9 @@ referrals: [
 
 Adds custom `referral` sources.
 
-In general if you’re ok with the fact that medium (`utm_medium`) of traffic from `facebook.com` is `referral`, you don’t need this setting. But if you want to make this kind of traffic `social` (`utm_medium=social`), you can set it up using `referrals`. First param is `host` of the source from `http referer`, second — `medium` — preferred value of `utm_medium`.
+In general if you’re ok with the fact that medium (`utm_medium`) of traffic from `facebook.com` is `referral`, you don’t need this setting. But if you want to make this kind of traffic `social` (`utm_medium=social`), you can set it up using `referrals`. First param is `host` of the source from `http referrer`, second — `medium` — preferred value of `utm_medium`.
 
-Moreover some of the traffic sources have different referer host in relation to their main domain (for example, traffic from Twitter has referer with the host — `t.co`). In these cases you can assign alias to the source using optional `display` param. Also with this param you can group the traffic from the set of the sites into one virtual source.
+Moreover some of the traffic sources have different referrer host in relation to their main domain (for example, traffic from Twitter has referrer with the host — `t.co`). In these cases you can assign alias to the source using optional `display` param. Also with this param you can group the traffic from the set of the sites into one virtual source.
 
 Twitter (`host: 't.co', display: 'twitter.com'`) and Google+ (`host: 'plus.url.google.com', display: 'plus.google.com'`) added to default `referral` sources. You still can override it by your custom setting (to mark it as `social` for example).
 
@@ -533,8 +533,8 @@ typ=utm|||src=yandex|||mdm=cpc|||cmp=my_adv_campaign|||cnt=banner_1|||trm=buy_my
 # source: google's SERP
 typ=organic|||src=google|||mdm=organic|||cmp=(none)|||cnt=(none)|||trm=(none)
 
-# source: referral from site.com/referer-path
-typ=referral|||src=site.com|||mdm=referral|||cmp=(none)|||cnt=/referer-path|||trm=(none)
+# source: referral from site.com/referrer-path
+typ=referral|||src=site.com|||mdm=referral|||cmp=(none)|||cnt=/referrer-path|||trm=(none)
 
 # source: facebook with custom `referrals` setting
 typ=referral|||src=facebook.com|||mdm=social|||cmp=(none)|||cnt=(none)|||trm=(none)
@@ -571,4 +571,4 @@ typ=typein|||src=(direct)|||mdm=(none)|||cmp=(none)|||cnt=(none)|||trm=(none)
 ### Limitations
 
 #### Visits from https to http
-When the visitor come from `https` web-site to `http`, the request don't have a referer. So the script will consider it as `typein` (direct visit).
+When the visitor come from `https` web-site to `http`, the request don't have a referrer. So the script will consider it as `typein` (direct visit).

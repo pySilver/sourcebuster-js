@@ -102,7 +102,7 @@ module.exports = function(prefs) {
       case terms.traffic.organic:
         __sbjs_type     = terms.traffic.organic;
         __sbjs_source   = __sbjs_source || uri.getHost(document.referrer);
-        __sbjs_medium   = terms.referer.organic;
+        __sbjs_medium   = terms.referrer.organic;
         __sbjs_campaign = terms.none;
         __sbjs_content  = terms.none;
         __sbjs_term     = terms.none;
@@ -111,7 +111,7 @@ module.exports = function(prefs) {
       case terms.traffic.referral:
         __sbjs_type     = terms.traffic.referral;
         __sbjs_source   = __sbjs_source || uri.getHost(document.referrer);
-        __sbjs_medium   = __sbjs_medium || terms.referer.referral;
+        __sbjs_medium   = __sbjs_medium || terms.referrer.referral;
         __sbjs_campaign = terms.none;
         __sbjs_content  = uri.parse(document.referrer).path;
         __sbjs_term     = terms.none;
@@ -148,10 +148,10 @@ module.exports = function(prefs) {
   }
 
   function getUtmTerm() {
-    var referer = document.referrer;
+    var referrer = document.referrer;
     if (get_param.utm_term) {
       return get_param.utm_term;
-    } else if (referer && uri.parse(referer).host && uri.parse(referer).host.match(/^(?:.*\.)?yandex\..{2,9}$/i)) {
+    } else if (referrer && uri.parse(referrer).host && uri.parse(referrer).host.match(/^(?:.*\.)?yandex\..{2,9}$/i)) {
       try {
         return uri.getParam(uri.parse(document.referrer).query).text;
       } catch (err) {
@@ -163,31 +163,31 @@ module.exports = function(prefs) {
   }
 
   function checkReferer(type) {
-    var referer = document.referrer;
+    var referrer = document.referrer;
     switch(type) {
       case terms.traffic.organic:
-        return (!!referer && checkRefererHost(referer) && isOrganic(referer));
+        return (!!referrer && checkRefererHost(referrer) && isOrganic(referrer));
       case terms.traffic.referral:
-        return (!!referer && checkRefererHost(referer) && isReferral(referer));
+        return (!!referrer && checkRefererHost(referrer) && isReferral(referrer));
       default:
         return false;
     }
   }
 
-  function checkRefererHost(referer) {
+  function checkRefererHost(referrer) {
     if (p.domain) {
       if (!isolate) {
         var host_regex = new RegExp('^(?:.*\\.)?' + utils.escapeRegexp(domain) + '$', 'i');
-        return !(uri.getHost(referer).match(host_regex));
+        return !(uri.getHost(referrer).match(host_regex));
       } else {
-        return (uri.getHost(referer) !== uri.getHost(domain));
+        return (uri.getHost(referrer) !== uri.getHost(domain));
       }
     } else {
-      return (uri.getHost(referer) !== uri.getHost(document.location.href));
+      return (uri.getHost(referrer) !== uri.getHost(document.location.href));
     }
   }
 
-  function isOrganic(referer) {
+  function isOrganic(referrer) {
 
     var y_host  = 'yandex',
         y_param = 'text',
@@ -198,20 +198,20 @@ module.exports = function(prefs) {
         g_host_regex  = new RegExp('^(?:www\\.)?' + utils.escapeRegexp(g_host)  + '\\..{2,9}$');
 
     if (
-        !!uri.parse(referer).query &&
-        !!uri.parse(referer).host.match(y_host_regex) &&
-        !!uri.parse(referer).query.match(y_param_regex)
+        !!uri.parse(referrer).query &&
+        !!uri.parse(referrer).host.match(y_host_regex) &&
+        !!uri.parse(referrer).query.match(y_param_regex)
       ) {
       __sbjs_source = y_host;
       return true;
-    } else if (!!uri.parse(referer).host.match(g_host_regex)) {
+    } else if (!!uri.parse(referrer).host.match(g_host_regex)) {
       __sbjs_source = g_host;
       return true;
-    } else if (!!uri.parse(referer).query) {
+    } else if (!!uri.parse(referrer).query) {
       for (var i = 0; i < p.organics.length; i++) {
         if (
-            uri.parse(referer).host.match(new RegExp('^(?:.*\\.)?' + utils.escapeRegexp(p.organics[i].host)  + '$', 'i')) &&
-            uri.parse(referer).query.match(new RegExp('.*'         + utils.escapeRegexp(p.organics[i].param) + '=.*', 'i'))
+            uri.parse(referrer).host.match(new RegExp('^(?:.*\\.)?' + utils.escapeRegexp(p.organics[i].host)  + '$', 'i')) &&
+            uri.parse(referrer).query.match(new RegExp('.*'         + utils.escapeRegexp(p.organics[i].param) + '=.*', 'i'))
           ) {
           __sbjs_source = p.organics[i].display || p.organics[i].host;
           return true;
@@ -225,21 +225,21 @@ module.exports = function(prefs) {
     }
   }
 
-  function isReferral(referer) {
+  function isReferral(referrer) {
     if (p.referrals.length > 0) {
       for (var i = 0; i < p.referrals.length; i++) {
-        if (uri.parse(referer).host.match(new RegExp('^(?:.*\\.)?' + utils.escapeRegexp(p.referrals[i].host) + '$', 'i'))) {
+        if (uri.parse(referrer).host.match(new RegExp('^(?:.*\\.)?' + utils.escapeRegexp(p.referrals[i].host) + '$', 'i'))) {
           __sbjs_source = p.referrals[i].display  || p.referrals[i].host;
-          __sbjs_medium = p.referrals[i].medium   || terms.referer.referral;
+          __sbjs_medium = p.referrals[i].medium   || terms.referrer.referral;
           return true;
         }
         if (i + 1 === p.referrals.length) {
-          __sbjs_source = uri.getHost(referer);
+          __sbjs_source = uri.getHost(referrer);
           return true;
         }
       }
     } else {
-      __sbjs_source = uri.getHost(referer);
+      __sbjs_source = uri.getHost(referrer);
       return true;
     }
   }
